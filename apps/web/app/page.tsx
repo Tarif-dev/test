@@ -1,102 +1,91 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+"use client";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+import React from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { Dashboard } from "../components/Dashboard";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { user, loading, isAuthenticated } = useAuth();
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.com/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+      </div>
+    );
+  }
+
+  if (isAuthenticated && user) {
+    return <Dashboard />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Welcome to TipLink
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">
+            Create and manage Ethereum wallets. Send crypto via shareable links.
+          </p>
+        </div>
+
+        <div className="bg-white py-8 px-6 shadow rounded-lg">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              Get Started
+            </h2>
+            <p className="text-gray-600">
+              Sign in with Google to create your Ethereum wallet
+            </p>
+          </div>
+
+          <GoogleSignInButton
+            onError={(error) => {
+              console.error("Sign in error:", error);
+              alert(`Sign in failed: ${error}`);
+            }}
           />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.com?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.com →
-        </a>
-      </footer>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              By signing in, you agree to our Terms of Service and Privacy
+              Policy
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="text-blue-600 text-2xl mb-2">🔐</div>
+              <h3 className="font-semibold text-gray-900">Secure Wallet</h3>
+              <p className="text-sm text-gray-600">
+                Your private keys are encrypted and stored securely
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="text-green-600 text-2xl mb-2">🔗</div>
+              <h3 className="font-semibold text-gray-900">Easy Sharing</h3>
+              <p className="text-sm text-gray-600">
+                Send crypto via shareable links to anyone
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="text-purple-600 text-2xl mb-2">⚡</div>
+              <h3 className="font-semibold text-gray-900">Fast Setup</h3>
+              <p className="text-sm text-gray-600">
+                Get started in seconds with Google authentication
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

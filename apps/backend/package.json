@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --hot index.ts",
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.6.16",
+    "ethers": "^6.13.4",
+    "googleapis": "^144.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "crypto-js": "^4.2.0",
+    "db": "*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/crypto-js": "^4.2.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

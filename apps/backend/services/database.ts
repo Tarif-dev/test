@@ -1,0 +1,111 @@
+import { prismaClient } from "db/client";
+
+const prisma = prismaClient;
+
+export interface CreateUserData {
+  email: string;
+  googleId: string;
+  name?: string;
+  avatar?: string;
+  encryptedPrivateKey: string;
+  publicAddress: string;
+}
+
+export interface CreateTiplinkData {
+  creatorId: string;
+  tokenAddress: string;
+  amount: string;
+  url: string;
+  message?: string;
+  expiresAt?: Date;
+}
+
+export class DatabaseService {
+  /**
+   * Find user by email
+   */
+  async findUserByEmail(email: string) {
+    try {
+      return await prisma.user.findUnique({
+        where: { email },
+      });
+    } catch (error) {
+      console.error("Error finding user by email:", error);
+      throw new Error("Database error");
+    }
+  }
+
+  /**
+   * Find user by Google ID
+   */
+  async findUserByGoogleId(googleId: string) {
+    try {
+      return await prisma.user.findUnique({
+        where: { googleId },
+      });
+    } catch (error) {
+      console.error("Error finding user by Google ID:", error);
+      throw new Error("Database error");
+    }
+  }
+
+  /**
+   * Find user by ID
+   */
+  async findUserById(id: string) {
+    try {
+      return await prisma.user.findUnique({
+        where: { id },
+      });
+    } catch (error) {
+      console.error("Error finding user by ID:", error);
+      throw new Error("Database error");
+    }
+  }
+
+  /**
+   * Create a new user
+   */
+  async createUser(userData: CreateUserData) {
+    try {
+      return await prisma.user.create({
+        data: {
+          email: userData.email,
+          googleId: userData.googleId,
+          name: userData.name,
+          avatar: userData.avatar,
+          encryptedPrivateKey: userData.encryptedPrivateKey,
+          publicAddress: userData.publicAddress,
+          lastLoginAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw new Error("Failed to create user");
+    }
+  }
+
+  /**
+   * Update user's last login time
+   */
+  async updateLastLogin(userId: string) {
+    try {
+      return await prisma.user.update({
+        where: { id: userId },
+        data: { lastLoginAt: new Date() },
+      });
+    } catch (error) {
+      console.error("Error updating last login:", error);
+      throw new Error("Failed to update user");
+    }
+  }
+
+  /**
+   * Close database connection
+   */
+  async disconnect(): Promise<void> {
+    await prisma.$disconnect();
+  }
+}
+
+export const dbService = new DatabaseService();

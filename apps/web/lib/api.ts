@@ -1,26 +1,14 @@
-import axios from 'axios';
+import axios from "axios";
+import {
+  User,
+  AuthResponse,
+  WalletInfo,
+  PortfolioSummary,
+  TokenInfo,
+  AddressInfo,
+} from "../types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  avatar?: string;
-  publicAddress: string;
-  createdAt?: string;
-  lastLoginAt?: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: User;
-}
-
-export interface WalletInfo {
-  address: string;
-  privateKey: string;
-}
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 class ApiService {
   private baseURL: string;
@@ -31,20 +19,20 @@ class ApiService {
 
   // Get auth token from localStorage
   private getAuthToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('authToken');
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("authToken");
   }
 
   // Set auth token in localStorage
   private setAuthToken(token: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('authToken', token);
+    if (typeof window === "undefined") return;
+    localStorage.setItem("authToken", token);
   }
 
   // Remove auth token from localStorage
   private removeAuthToken(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('authToken');
+    if (typeof window === "undefined") return;
+    localStorage.removeItem("authToken");
   }
 
   // Create axios instance with auth header
@@ -52,7 +40,7 @@ class ApiService {
     const token = this.getAuthToken();
     return axios.create({
       baseURL: this.baseURL,
-      headers: token ? { Authorization: `Bearer ${token}` } : {}
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
   }
 
@@ -62,25 +50,28 @@ class ApiService {
       const response = await axios.get(`${this.baseURL}/auth/google`);
       return response.data.authUrl;
     } catch (error) {
-      console.error('Error getting Google auth URL:', error);
-      throw new Error('Failed to get authentication URL');
+      console.error("Error getting Google auth URL:", error);
+      throw new Error("Failed to get authentication URL");
     }
   }
 
   // Handle Google OAuth callback
   async handleGoogleCallback(code: string): Promise<AuthResponse> {
     try {
-      const response = await axios.post(`${this.baseURL}/auth/google/callback`, {
-        code
-      });
-      
+      const response = await axios.post(
+        `${this.baseURL}/auth/google/callback`,
+        {
+          code,
+        }
+      );
+
       const { token, user } = response.data;
       this.setAuthToken(token);
-      
+
       return { token, user };
     } catch (error) {
-      console.error('Error handling Google callback:', error);
-      throw new Error('Authentication failed');
+      console.error("Error handling Google callback:", error);
+      throw new Error("Authentication failed");
     }
   }
 
@@ -88,15 +79,15 @@ class ApiService {
   async getUserProfile(): Promise<User> {
     try {
       const api = this.createAuthenticatedRequest();
-      const response = await api.get('/user/profile');
+      const response = await api.get("/user/profile");
       return response.data.user;
     } catch (error) {
-      console.error('Error getting user profile:', error);
+      console.error("Error getting user profile:", error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         this.removeAuthToken();
-        throw new Error('Session expired');
+        throw new Error("Session expired");
       }
-      throw new Error('Failed to get user profile');
+      throw new Error("Failed to get user profile");
     }
   }
 
@@ -104,15 +95,83 @@ class ApiService {
   async getUserWallet(): Promise<WalletInfo> {
     try {
       const api = this.createAuthenticatedRequest();
-      const response = await api.get('/user/wallet');
+      const response = await api.get("/user/wallet");
       return response.data;
     } catch (error) {
-      console.error('Error getting wallet info:', error);
+      console.error("Error getting wallet info:", error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
         this.removeAuthToken();
-        throw new Error('Session expired');
+        throw new Error("Session expired");
       }
-      throw new Error('Failed to get wallet information');
+      throw new Error("Failed to get wallet information");
+    }
+  }
+
+  // Get user's complete portfolio (tokens + ETH)
+  async getUserPortfolio(): Promise<PortfolioSummary> {
+    try {
+      const api = this.createAuthenticatedRequest();
+      const response = await api.get("/user/portfolio");
+      return response.data.portfolio;
+    } catch (error) {
+      console.error("Error getting portfolio:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        this.removeAuthToken();
+        throw new Error("Session expired");
+      }
+      throw new Error("Failed to get portfolio data");
+    }
+  }
+
+  // Get user's ETH balance only
+  async getETHBalance(): Promise<{
+    address: string;
+    balance: string;
+    balanceFormatted: string;
+  }> {
+    try {
+      const api = this.createAuthenticatedRequest();
+      const response = await api.get("/user/eth-balance");
+      return response.data;
+    } catch (error) {
+      console.error("Error getting ETH balance:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        this.removeAuthToken();
+        throw new Error("Session expired");
+      }
+      throw new Error("Failed to get ETH balance");
+    }
+  }
+
+  // Get user addresses for QR codes
+  async getUserAddresses(): Promise<AddressInfo> {
+    try {
+      const api = this.createAuthenticatedRequest();
+      const response = await api.get("/user/addresses");
+      return response.data;
+    } catch (error) {
+      console.error("Error getting user addresses:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        this.removeAuthToken();
+        throw new Error("Session expired");
+      }
+      throw new Error("Failed to get user addresses");
+    }
+  }
+
+  // Get user's token balances only
+  async getTokenBalances(): Promise<{ address: string; tokens: TokenInfo[] }> {
+    try {
+      const api = this.createAuthenticatedRequest();
+      const response = await api.get("/user/tokens");
+      return response.data;
+    } catch (error) {
+      console.error("Error getting token balances:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        this.removeAuthToken();
+        throw new Error("Session expired");
+      }
+      throw new Error("Failed to get token balances");
     }
   }
 

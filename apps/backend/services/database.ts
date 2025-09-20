@@ -9,6 +9,8 @@ export interface CreateUserData {
   avatar?: string;
   encryptedPrivateKey: string;
   publicAddress: string;
+  encryptedPrivateKeySolana?: string;
+  publicAddressSolana?: string;
 }
 
 export interface CreateTiplinkData {
@@ -76,6 +78,8 @@ export class DatabaseService {
           avatar: userData.avatar,
           encryptedPrivateKey: userData.encryptedPrivateKey,
           publicAddress: userData.publicAddress,
+          encryptedPrivateKeySolana: userData.encryptedPrivateKeySolana,
+          publicAddressSolana: userData.publicAddressSolana,
           lastLoginAt: new Date(),
         },
       });
@@ -97,6 +101,53 @@ export class DatabaseService {
     } catch (error) {
       console.error("Error updating last login:", error);
       throw new Error("Failed to update user");
+    }
+  }
+
+  /**
+   * Update user with Solana keypair
+   */
+  async updateUserWithSolanaKeypair(
+    userId: string,
+    encryptedPrivateKeySolana: string,
+    publicAddressSolana: string
+  ) {
+    try {
+      return await prisma.user.update({
+        where: { id: userId },
+        data: {
+          encryptedPrivateKeySolana,
+          publicAddressSolana,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating user with Solana keypair:", error);
+      throw new Error("Failed to update user with Solana keypair");
+    }
+  }
+
+  /**
+   * Find users without Solana keypairs
+   */
+  async findUsersWithoutSolanaKeypairs() {
+    try {
+      return await prisma.user.findMany({
+        where: {
+          OR: [
+            { encryptedPrivateKeySolana: null },
+            { publicAddressSolana: null },
+          ],
+        },
+        select: {
+          id: true,
+          email: true,
+          encryptedPrivateKeySolana: true,
+          publicAddressSolana: true,
+        },
+      });
+    } catch (error) {
+      console.error("Error finding users without Solana keypairs:", error);
+      throw new Error("Database error");
     }
   }
 

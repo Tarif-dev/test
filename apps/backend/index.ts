@@ -1,58 +1,65 @@
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { AuthService } from './services/auth';
-import { dbService } from './services/database';
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { AuthService } from "./services/auth";
+import { TokenService } from "./services/tokens";
+import { dbService } from "./services/database";
 
 const app = new Hono();
 const authService = new AuthService();
+const tokenService = new TokenService();
 
 // Middleware
-app.use('*', cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
-  credentials: true
-}));
+app.use(
+  "*",
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
+  })
+);
 
 // Health check
-app.get('/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get("/health", (c) => {
+  return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // Auth routes
-app.get('/auth/google', (c) => {
+app.get("/auth/google", (c) => {
   try {
     const authUrl = authService.getAuthUrl();
     return c.json({ authUrl });
   } catch (error) {
-    console.error('Error generating auth URL:', error);
-    return c.json({ error: 'Failed to generate auth URL' }, 500);
+    console.error("Error generating auth URL:", error);
+    return c.json({ error: "Failed to generate auth URL" }, 500);
   }
 });
 
-app.post('/auth/google/callback', async (c) => {
+app.post("/auth/google/callback", async (c) => {
   try {
     const { code } = await c.req.json();
-    
+
     if (!code) {
-      return c.json({ error: 'Authorization code is required' }, 400);
+      return c.json({ error: "Authorization code is required" }, 400);
     }
 
     // Get user info from Google
     const googleUser = await authService.getGoogleUserInfo(code);
-    
+
     // Check if user exists
     let user = await dbService.findUserByGoogleId(googleUser.id);
-    
+
     if (!user) {
-      // Create new user with Ethereum keypair
-      const ethereumKeypair = authService.generateEthereumKeypair();
-      
+      // Create new user with both Ethereum and Solana keypairs
+      const dualKeypair = authService.generateDualKeypair();
+
       user = await dbService.createUser({
         email: googleUser.email,
         googleId: googleUser.id,
         name: googleUser.name,
         avatar: googleUser.picture,
-        encryptedPrivateKey: ethereumKeypair.encryptedPrivateKey,
-        publicAddress: ethereumKeypair.address
+        encryptedPrivateKey: dualKeypair.ethereum.encryptedPrivateKey,
+        publicAddress: dualKeypair.ethereum.address,
+        encryptedPrivateKeySolana: dualKeypair.solana.encryptedPrivateKey,
+        publicAddressSolana: dualKeypair.solana.publicKey,
       });
     } else {
       // Update last login
@@ -69,46 +76,45 @@ app.post('/auth/google/callback', async (c) => {
         email: user.email,
         name: user.name,
         avatar: user.avatar,
-        publicAddress: user.publicAddress
-      }
+        publicAddress: user.publicAddress,
+        publicAddressSolana: user.publicAddressSolana,
+      },
     });
-
   } catch (error) {
-    console.error('Error in Google callback:', error);
-    return c.json({ error: 'Authentication failed' }, 500);
+    console.error("Error in Google callback:", error);
+    return c.json({ error: "Authentication failed" }, 500);
   }
 });
 
 // Protected route middleware
 const authMiddleware = async (c: any, next: any) => {
   try {
-    const authorization = c.req.header('Authorization');
-    
+    const authorization = c.req.header("Authorization");
+
     if (!authorization) {
-      return c.json({ error: 'Authorization header is required' }, 401);
+      return c.json({ error: "Authorization header is required" }, 401);
     }
 
-    const token = authorization.replace('Bearer ', '');
+    const token = authorization.replace("Bearer ", "");
     const decoded = authService.verifyJWT(token);
-    
+
     // Attach user info to context
-    c.set('user', decoded);
+    c.set("user", decoded);
     await next();
-    
   } catch (error) {
-    console.error('Auth middleware error:', error);
-    return c.json({ error: 'Invalid token' }, 401);
+    console.error("Auth middleware error:", error);
+    return c.json({ error: "Invalid token" }, 401);
   }
 };
 
 // Protected routes
-app.get('/user/profile', authMiddleware, async (c) => {
+app.get("/user/profile", authMiddleware, async (c) => {
   try {
-    const userAuth = c.get('user');
+    const userAuth = c.get("user") as any;
     const user = await dbService.findUserById(userAuth.userId);
-    
+
     if (!user) {
-      return c.json({ error: 'User not found' }, 404);
+      return c.json({ error: "User not found" }, 404);
     }
 
     return c.json({
@@ -118,45 +124,219 @@ app.get('/user/profile', authMiddleware, async (c) => {
         name: user.name,
         avatar: user.avatar,
         publicAddress: user.publicAddress,
+        publicAddressSolana: user.publicAddressSolana,
         createdAt: user.createdAt,
-        lastLoginAt: user.lastLoginAt
-      }
+        lastLoginAt: user.lastLoginAt,
+      },
     });
-
   } catch (error) {
-    console.error('Error getting user profile:', error);
-    return c.json({ error: 'Failed to get user profile' }, 500);
+    console.error("Error getting user profile:", error);
+    return c.json({ error: "Failed to get user profile" }, 500);
   }
 });
 
-// Get user's wallet private key (for frontend operations)
-app.get('/user/wallet', authMiddleware, async (c) => {
+// Get user's wallet private keys (for frontend operations)
+app.get("/user/wallet", authMiddleware, async (c) => {
   try {
-    const userAuth = c.get('user');
+    const userAuth = c.get("user") as any;
     const user = await dbService.findUserById(userAuth.userId);
-    
+
     if (!user) {
-      return c.json({ error: 'User not found' }, 404);
+      return c.json({ error: "User not found" }, 404);
     }
 
-    // Decrypt private key
-    const privateKey = authService.decryptPrivateKey(user.encryptedPrivateKey);
+    // Decrypt Ethereum private key
+    const ethereumPrivateKey = authService.decryptPrivateKey(
+      user.encryptedPrivateKey
+    );
+
+    // Decrypt Solana private key if available
+    let solanaPrivateKey = null;
+    if (user.encryptedPrivateKeySolana) {
+      try {
+        const solanaPrivateKeyArray = authService.decryptSolanaPrivateKey(
+          user.encryptedPrivateKeySolana
+        );
+        solanaPrivateKey = Array.from(solanaPrivateKeyArray);
+      } catch (error) {
+        console.error("Error decrypting Solana private key:", error);
+      }
+    }
+
+    return c.json({
+      ethereum: {
+        address: user.publicAddress,
+        privateKey: ethereumPrivateKey,
+      },
+      solana: user.publicAddressSolana
+        ? {
+            address: user.publicAddressSolana,
+            privateKey: solanaPrivateKey, // Array format for Solana
+          }
+        : null,
+    });
+  } catch (error) {
+    console.error("Error getting wallet info:", error);
+    return c.json({ error: "Failed to get wallet info" }, 500);
+  }
+});
+
+// Get user's addresses (for QR codes and display)
+app.get("/user/addresses", authMiddleware, async (c) => {
+  try {
+    const userAuth = c.get("user") as any;
+    const user = await dbService.findUserById(userAuth.userId);
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    return c.json({
+      ethereum: {
+        address: user.publicAddress,
+        network: "sepolia",
+        chainId: 11155111,
+      },
+      solana: user.publicAddressSolana
+        ? {
+            address: user.publicAddressSolana,
+            network: "devnet",
+          }
+        : null,
+    });
+  } catch (error) {
+    console.error("Error getting addresses:", error);
+    return c.json({ error: "Failed to get addresses" }, 500);
+  }
+});
+
+// Get user's token portfolio
+app.get("/user/portfolio", authMiddleware, async (c) => {
+  try {
+    const userAuth = c.get("user") as any;
+    const user = await dbService.findUserById(userAuth.userId);
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    // Get portfolio data using the token service
+    const portfolio = await tokenService.getPortfolio(user.publicAddress);
+
+    return c.json({
+      portfolio,
+    });
+  } catch (error) {
+    console.error("Error getting portfolio:", error);
+    return c.json({ error: "Failed to get portfolio data" }, 500);
+  }
+});
+
+// Get user's ETH balance only
+app.get("/user/eth-balance", authMiddleware, async (c) => {
+  try {
+    const userAuth = c.get("user") as any;
+    const user = await dbService.findUserById(userAuth.userId);
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    const ethBalance = await tokenService.getETHBalance(user.publicAddress);
 
     return c.json({
       address: user.publicAddress,
-      privateKey // Note: In production, consider more secure methods
+      ...ethBalance,
     });
-
   } catch (error) {
-    console.error('Error getting wallet info:', error);
-    return c.json({ error: 'Failed to get wallet info' }, 500);
+    console.error("Error getting ETH balance:", error);
+    return c.json({ error: "Failed to get ETH balance" }, 500);
+  }
+});
+
+// Get user's token balances only
+app.get("/user/tokens", authMiddleware, async (c) => {
+  try {
+    const userAuth = c.get("user") as any;
+    const user = await dbService.findUserById(userAuth.userId);
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    const tokens = await tokenService.getTokenBalances(user.publicAddress);
+
+    return c.json({
+      address: user.publicAddress,
+      tokens,
+    });
+  } catch (error) {
+    console.error("Error getting token balances:", error);
+    return c.json({ error: "Failed to get token balances" }, 500);
+  }
+});
+
+// Debug endpoint to get detailed token info
+app.get("/debug/user/address", authMiddleware, async (c) => {
+  try {
+    const userAuth = c.get("user") as any;
+    const user = await dbService.findUserById(userAuth.userId);
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    // Get ETH balance for debugging
+    const ethBalance = await tokenService.getETHBalance(user.publicAddress);
+
+    return c.json({
+      address: user.publicAddress,
+      ethBalance,
+      message:
+        "Use this address to check transactions on https://sepolia.etherscan.io",
+    });
+  } catch (error) {
+    console.error("Error getting debug info:", error);
+    return c.json({ error: "Failed to get debug info" }, 500);
+  }
+});
+
+// Check balance for a specific token address
+app.post("/user/check-token", authMiddleware, async (c) => {
+  try {
+    const userAuth = c.get("user") as any;
+    const user = await dbService.findUserById(userAuth.userId);
+
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+
+    const { tokenAddress } = await c.req.json();
+
+    if (!tokenAddress) {
+      return c.json({ error: "Token address is required" }, 400);
+    }
+
+    const token = await tokenService.getCustomTokenBalance(
+      tokenAddress,
+      user.publicAddress
+    );
+
+    return c.json({
+      address: user.publicAddress,
+      tokenAddress,
+      token,
+    });
+  } catch (error) {
+    console.error("Error checking custom token:", error);
+    return c.json({ error: "Failed to check token" }, 500);
   }
 });
 
 // Error handling
 app.onError((err, c) => {
-  console.error('Unhandled error:', err);
-  return c.json({ error: 'Internal server error' }, 500);
+  console.error("Unhandled error:", err);
+  return c.json({ error: "Internal server error" }, 500);
 });
 
 // Start server

@@ -25,6 +25,10 @@ model User {
   encryptedPrivateKey String @map("encrypted_private_key")
   publicAddress      String @unique @map("public_address")
   
+  // Solana wallet data (encrypted) - optional for backward compatibility
+  encryptedPrivateKeySolana String? @map("encrypted_private_key_solana")
+  publicAddressSolana      String? @unique @map("public_address_solana")
+  
   // Last login tracking
   lastLoginAt DateTime? @map("last_login_at")
   

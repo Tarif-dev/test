@@ -8,12 +8,14 @@
     "start": "bun run index.ts"
   },
   "dependencies": {
-    "hono": "^4.6.16",
+    "@solana/web3.js": "^1.98.4",
+    "axios": "^1.12.2",
+    "crypto-js": "^4.2.0",
+    "db": "*",
     "ethers": "^6.13.4",
     "googleapis": "^144.0.0",
-    "jsonwebtoken": "^9.0.2",
-    "crypto-js": "^4.2.0",
-    "db": "*"
+    "hono": "^4.6.16",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@types/bun": "latest",

@@ -152,6 +152,34 @@ export class DatabaseService {
   }
 
   /**
+   * Get all users with Solana addresses (for admin/poller use)
+   */
+  async getAllUsersWithSolana() {
+    try {
+      return await prisma.user.findMany({
+        where: {
+          AND: [
+            { encryptedPrivateKeySolana: { not: null } },
+            { publicAddressSolana: { not: null } },
+          ],
+        },
+        select: {
+          id: true,
+          email: true,
+          publicAddress: true,
+          publicAddressSolana: true,
+          encryptedPrivateKeySolana: true,
+          createdAt: true,
+          lastLoginAt: true,
+        },
+      });
+    } catch (error) {
+      console.error("Error getting users with Solana addresses:", error);
+      throw new Error("Database error");
+    }
+  }
+
+  /**
    * Close database connection
    */
   async disconnect(): Promise<void> {

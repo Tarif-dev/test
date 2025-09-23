@@ -29,51 +29,52 @@ const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
 ];
 
-// Popular ERC-20 tokens on Ethereum Sepolia testnet
+// Popular ERC-20 tokens on Ethereum Mainnet
 const POPULAR_TOKENS = [
   {
-    address: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // USDC on Sepolia
+    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC on Mainnet (correct address)
     symbol: "USDC",
-    name: "USD Coin (Testnet)",
+    name: "USD Coin",
     decimals: 6,
     logoURI:
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86a33E6441e21A97e78b6F4d5bBE7aD7B0e57/logo.png",
   },
   {
-    address: "0xfa585a0e15255b5fda9ed653489b8587869a1d40", // Your custom token
-    symbol: "CUSTOM",
-    name: "Custom Token",
-    decimals: 18,
-    logoURI: undefined,
+    address: "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8", // PYUSD on Ethereum Mainnet
+    symbol: "PYUSD",
+    name: "PayPal USD",
+    decimals: 6,
+    logoURI:
+      "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8/logo.png",
   },
   {
-    address: "0x7169D38820dfd117C3FA1f22a697dBA58d90BA06", // WETH on Sepolia
+    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH on Mainnet
     symbol: "WETH",
-    name: "Wrapped Ether (Testnet)",
+    name: "Wrapped Ether",
     decimals: 18,
     logoURI:
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
   },
   {
-    address: "0x779877A7B0D9E8603169DdbD7836e478b4624789", // LINK on Sepolia
+    address: "0x514910771AF9Ca656af840dff83E8264EcF986CA", // LINK on Mainnet
     symbol: "LINK",
-    name: "ChainLink Token (Testnet)",
+    name: "ChainLink Token",
     decimals: 18,
     logoURI:
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo.png",
   },
   {
-    address: "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14", // WBTC on Sepolia
+    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", // WBTC on Mainnet
     symbol: "WBTC",
-    name: "Wrapped BTC (Testnet)",
+    name: "Wrapped BTC",
     decimals: 8,
     logoURI:
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png",
   },
   {
-    address: "0x2e234DAe75C793f67A35089C9d99245E1C58470b", // USDT on Sepolia (example testnet address)
+    address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", // USDT on Mainnet
     symbol: "USDT",
-    name: "Tether USD (Testnet)",
+    name: "Tether USD",
     decimals: 6,
     logoURI:
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
@@ -84,11 +85,14 @@ export class TokenService {
   private provider: ethers.Provider;
 
   constructor() {
-    // Initialize with Sepolia testnet RPC endpoint
+    // Initialize with Ethereum mainnet RPC endpoint
     const rpcUrl =
       process.env.ETHEREUM_RPC_URL ||
-      "https://ethereum-sepolia-rpc.publicnode.com";
+      process.env.ETHEREUM_MAINNET_RPC_URL ||
+      "https://ethereum-rpc.publicnode.com";
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
+
+    console.log(`🔗 TokenService initialized with mainnet RPC: ${rpcUrl}`);
   }
 
   /**
@@ -119,6 +123,8 @@ export class TokenService {
     userAddress: string
   ): Promise<TokenInfo | null> {
     try {
+      console.log(`🔍 Checking mainnet token: ${tokenAddress}`);
+
       const contract = new ethers.Contract(
         tokenAddress,
         ERC20_ABI,
@@ -223,14 +229,15 @@ export class TokenService {
     tokenAddresses: string[]
   ): Promise<Record<string, number>> {
     try {
-      // Map testnet token addresses to their mainnet CoinGecko IDs
+      // Map mainnet token addresses to their CoinGecko IDs
       const tokenToCoinGeckoId: Record<string, string> = {
         ethereum: "ethereum", // ETH
-        "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238": "usd-coin", // USDC (Testnet maps to real USDC)
-        "0x779877a7b0d9e8603169ddbd7836e478b4624789": "chainlink", // LINK (Testnet maps to real LINK)
-        "0x7169d38820dfd117c3fa1f22a697dba58d90ba06": "ethereum", // WETH (maps to ETH)
-        "0xfff9976782d46cc05630d1f6ebab18b2324d6b14": "wrapped-bitcoin", // WBTC (Testnet maps to real WBTC)
-        "0x2e234dae75c793f67a35089c9d99245e1c58470b": "tether", // USDT (Testnet maps to real USDT)
+        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "usd-coin", // USDC (Mainnet)
+        "0x6c3ea9036406852006290770bedfcaba0e23a0e8": "paypal-usd", // PYUSD (Mainnet)
+        "0x514910771af9ca656af840dff83e8264ecf986ca": "chainlink", // LINK (Mainnet)
+        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "ethereum", // WETH (maps to ETH)
+        "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": "wrapped-bitcoin", // WBTC (Mainnet)
+        "0xdac17f958d2ee523a2206206994597c13d831ec7": "tether", // USDT (Mainnet)
       };
 
       // Get unique CoinGecko IDs
@@ -292,20 +299,11 @@ export class TokenService {
         }
       });
 
-      // Add fallback prices for custom tokens or tokens without CoinGecko mapping
+      // Add fallback prices for tokens without CoinGecko mapping
       tokenAddresses.forEach((address) => {
         if (!prices[address.toLowerCase()]) {
-          // Custom token - use a default price of $1 or $0 for demo
-          if (
-            address.toLowerCase() ===
-            "0xfa585a0e15255b5fda9ed653489b8587869a1d40"
-          ) {
-            prices[address.toLowerCase()] = 10.0; // Custom token mock price
-            console.log(`🔧 Custom token ${address} -> $10.00`);
-          } else {
-            prices[address.toLowerCase()] = 0; // Unknown tokens get $0
-            console.log(`⚠️ No price found for ${address}, using $0`);
-          }
+          prices[address.toLowerCase()] = 0; // Unknown tokens get $0
+          console.log(`⚠️ No price found for ${address}, using $0`);
         }
       });
 
@@ -318,12 +316,12 @@ export class TokenService {
       console.log("🔄 Falling back to mock prices");
       const mockPrices: Record<string, number> = {
         ethereum: 2500, // ETH price
-        "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238": 1.0, // USDC (Testnet)
-        "0xfa585a0e15255b5fda9ed653489b8587869a1d40": 10.0, // Your custom token (mock price)
-        "0x7169d38820dfd117c3fa1f22a697dba58d90ba06": 2500, // WETH (Testnet)
-        "0x779877a7b0d9e8603169ddbd7836e478b4624789": 15.2, // LINK (Testnet)
-        "0xfff9976782d46cc05630d1f6ebab18b2324d6b14": 45000, // WBTC (Testnet)
-        "0x2e234dae75c793f67a35089c9d99245e1c58470b": 1.0, // USDT (Testnet)
+        "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": 1.0, // USDC (Mainnet)
+        "0x6c3ea9036406852006290770bedfcaba0e23a0e8": 1.0, // PYUSD (Mainnet)
+        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": 2500, // WETH (Mainnet)
+        "0x514910771af9ca656af840dff83e8264ecf986ca": 15.2, // LINK (Mainnet)
+        "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": 45000, // WBTC (Mainnet)
+        "0xdac17f958d2ee523a2206206994597c13d831ec7": 1.0, // USDT (Mainnet)
       };
 
       return mockPrices;

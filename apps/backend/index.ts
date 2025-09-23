@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { AuthService } from "./services/auth";
 import { TokenService } from "./services/tokens";
 import { dbService } from "./services/database";
+import { swapApp } from "./routes/swap";
 
 const app = new Hono();
 const authService = new AuthService();
@@ -332,6 +333,41 @@ app.post("/user/check-token", authMiddleware, async (c) => {
     return c.json({ error: "Failed to check token" }, 500);
   }
 });
+
+// Admin endpoint for poller service
+app.get("/admin/users-with-solana", async (c) => {
+  try {
+    // Simple admin authentication
+    const authHeader = c.req.header("Authorization");
+    const adminKey = process.env.ADMIN_API_KEY || "admin-key";
+
+    if (!authHeader || !authHeader.includes(adminKey)) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    // Get all users with Solana addresses
+    const users = await dbService.getAllUsersWithSolana();
+
+    return c.json({
+      users: users.map((user) => ({
+        id: user.id,
+        email: user.email,
+        publicAddress: user.publicAddress,
+        publicAddressSolana: user.publicAddressSolana,
+        encryptedPrivateKeySolana: user.encryptedPrivateKeySolana,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+      })),
+      count: users.length,
+    });
+  } catch (error) {
+    console.error("Error getting users with Solana:", error);
+    return c.json({ error: "Failed to get users" }, 500);
+  }
+});
+
+// Mount swap routes
+app.route("/swap", swapApp);
 
 // Error handling
 app.onError((err, c) => {

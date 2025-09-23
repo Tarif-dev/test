@@ -6,6 +6,7 @@ import { apiService } from "../lib/api";
 import { WalletInfo } from "../types";
 import { TokenPortfolio } from "./TokenPortfolio";
 import AddressQRCode from "./AddressQRCode";
+import { SwapToPyusd } from "./SwapToPyusd";
 
 export function Dashboard() {
   const { user, logout } = useAuth();
@@ -131,6 +132,11 @@ export function Dashboard() {
             <div className="lg:col-span-1">
               <AddressQRCode />
             </div>
+          </div>
+
+          {/* Swap Section */}
+          <div className="mt-8">
+            <SwapToPyusd />
           </div>
         </div>
       </main>

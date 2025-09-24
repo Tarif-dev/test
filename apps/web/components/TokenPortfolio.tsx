@@ -82,11 +82,20 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
-        <div className="flex items-center justify-center h-48">
+      <div className={`card p-8 ${className}`}>
+        <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-            <p className="text-gray-600">Loading portfolio...</p>
+            <div className="relative mb-6">
+              <div className="w-12 h-12 border-4 border-gray-200 border-t-orange-500 rounded-full animate-spin mx-auto"></div>
+              <div
+                className="absolute inset-0 w-12 h-12 border-4 border-transparent border-t-orange-300 rounded-full animate-spin mx-auto opacity-60"
+                style={{ animationDelay: "150ms" }}
+              ></div>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Loading Portfolio
+            </h3>
+            <p className="text-gray-600">Discovering your tokens...</p>
           </div>
         </div>
       </div>
@@ -95,16 +104,29 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
 
   if (error) {
     return (
-      <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
+      <div className={`card p-8 ${className}`}>
         <div className="text-center">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              className="w-8 h-8 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
           </div>
-          <button
-            onClick={loadPortfolio}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-          >
-            Retry
+          <h3 className="text-xl font-bold text-gray-900 mb-4">
+            Unable to Load Portfolio
+          </h3>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button onClick={loadPortfolio} className="btn-primary">
+            Try Again
           </button>
         </div>
       </div>
@@ -112,23 +134,59 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow ${className}`}>
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-semibold text-gray-900">Portfolio</h3>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Sepolia Testnet
-            </span>
-          </div>
-          <button
-            onClick={refreshPortfolio}
-            disabled={refreshing}
-            className="flex items-center space-x-2 px-3 py-1 text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+    <div className={`card p-6 ${className}`}>
+      {/* Header with Refresh */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Token Portfolio</h2>
+          <p className="text-sm text-gray-600">
+            Your digital assets across all networks
+          </p>
+        </div>
+        <button
+          onClick={refreshPortfolio}
+          disabled={refreshing}
+          className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200 disabled:opacity-50"
+        >
+          <svg
+            className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          <span className="text-sm font-medium">
+            {refreshing ? "Updating..." : "Refresh"}
+          </span>
+        </button>
+      </div>
+
+      {/* Total Portfolio Value */}
+      <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-orange-800 mb-1">
+              Total Portfolio Value
+            </p>
+            <p className="text-3xl font-bold text-orange-900">
+              {formatUSD(portfolio?.totalValueUSD)}
+            </p>
+            {portfolio?.ethValueUSD && (
+              <p className="text-sm text-orange-700 mt-2">
+                ETH: {portfolio.ethBalanceFormatted} ETH (~
+                {formatUSD(portfolio.ethValueUSD)})
+              </p>
+            )}
+          </div>
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center">
             <svg
-              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              className="w-8 h-8 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -136,170 +194,168 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                strokeWidth="2"
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
               />
             </svg>
-            <span>{refreshing ? "Refreshing..." : "Refresh"}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Portfolio Summary */}
-      <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50">
-        <div className="text-center">
-          <p className="text-sm text-gray-600 mb-1">
-            Total Portfolio Value (Testnet)
-          </p>
-          <p className="text-3xl font-bold text-gray-900">
-            {formatUSD(portfolio?.totalValueUSD)}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            * Mock prices for demo purposes
-          </p>
-        </div>
-      </div>
-
-      {/* ETH Balance */}
-      <div className="px-6 py-4 border-b border-gray-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">ETH</span>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Ethereum</p>
-              <p className="text-sm text-gray-500">ETH</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="font-medium text-gray-900">
-              {formatBalance(portfolio?.ethBalanceFormatted || "0")} ETH
-            </p>
-            <p className="text-sm text-gray-500">
-              {formatUSD(portfolio?.ethValueUSD)}
-            </p>
           </div>
         </div>
       </div>
 
-      {/* Token List */}
-      <div className="px-6 py-4">
-        <h4 className="text-sm font-medium text-gray-700 mb-3">
-          ERC-20 Tokens
-        </h4>
+      {/* Tokens List */}
+      {!portfolio || portfolio.tokens.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Tokens Found
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Your wallet doesn't have any ERC-20 tokens yet.
+          </p>
+          <p className="text-sm text-gray-500">
+            Send some tokens to your address and refresh to see them here.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Your Tokens ({portfolio.tokens.length})
+            </h3>
+            <div className="text-sm text-gray-600">
+              Auto-discovered via smart contract analysis
+            </div>
+          </div>
 
-        {portfolio?.tokens && portfolio.tokens.length > 0 ? (
           <div className="space-y-3">
-            {portfolio.tokens.map((token: TokenInfo) => (
+            {portfolio.tokens.map((token) => (
               <div
                 key={token.address}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
               >
-                <div className="flex items-center space-x-3">
-                  {token.logoURI ? (
-                    <img
-                      src={token.logoURI}
-                      alt={token.symbol}
-                      className="w-8 h-8 rounded-full"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 text-xs font-bold">
-                        {token.symbol.slice(0, 2)}
+                <div className="flex items-center space-x-4">
+                  {/* Token Icon/Logo */}
+                  <div className="relative">
+                    {token.logoURI ? (
+                      <img
+                        src={token.logoURI}
+                        alt={token.symbol}
+                        className="w-10 h-10 rounded-full"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {token.symbol.slice(0, 2)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Token Info */}
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-semibold text-gray-900">
+                        {token.symbol}
+                      </h4>
+                      <span className="text-xs px-2 py-1 bg-gray-200 text-gray-600 rounded-full">
+                        {token.name}
                       </span>
                     </div>
-                  )}
-                  <div>
-                    <p className="font-medium text-gray-900">{token.name}</p>
-                    <div className="flex items-center space-x-2">
-                      <p className="text-sm text-gray-500">{token.symbol}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <p className="text-sm text-gray-600 font-mono">
+                        {token.address.slice(0, 6)}...{token.address.slice(-4)}
+                      </p>
                       <button
                         onClick={() =>
-                          copyToClipboard(token.address, "Contract address")
+                          copyToClipboard(
+                            token.address,
+                            `${token.symbol} address`
+                          )
                         }
-                        className="text-xs text-blue-600 hover:text-blue-800"
-                        title="Copy contract address"
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded transition-all"
                       >
-                        Copy Address
+                        <svg
+                          className="w-3 h-3 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
                       </button>
                     </div>
                   </div>
                 </div>
+
+                {/* Token Balance & Value */}
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">
-                    {formatBalance(token.balanceFormatted)} {token.symbol}
+                  <p className="font-semibold text-gray-900">
+                    {formatBalance(token.balance, token.decimals)}{" "}
+                    {token.symbol}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    {formatUSD(token.valueUSD)}
-                  </p>
+                  {token.priceUSD && token.valueUSD && (
+                    <div className="text-sm text-gray-600 mt-1">
+                      <div>{formatUSD(token.valueUSD)}</div>
+                      <div className="text-xs text-gray-500">
+                        @ {formatUSD(token.priceUSD)} per {token.symbol}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                />
-              </svg>
-            </div>
-            <p className="text-gray-500 text-sm">No tokens found</p>
-            <p className="text-gray-400 text-xs mt-1">
-              Send some tokens to your wallet to see them here
+        </>
+      )}
+
+      {/* Discovery Info */}
+      <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+        <div className="flex items-start space-x-3">
+          <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center mt-0.5">
+            <svg
+              className="w-3 h-3 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-blue-900 mb-1">
+              Automatic Token Discovery
+            </h4>
+            <p className="text-sm text-blue-800">
+              Tokens are automatically discovered by scanning blockchain
+              transactions. Send any ERC-20 token to your address and it will
+              appear here after the next refresh.
             </p>
           </div>
-        )}
-      </div>
-
-      {/* Portfolio Actions */}
-      <div className="px-6 py-4 border-t border-gray-100">
-        <div className="grid grid-cols-2 gap-3">
-          <button className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            Receive
-          </button>
-          <button className="flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 11l5-5m0 0l5 5m-5-5v12"
-              />
-            </svg>
-            Send
-          </button>
         </div>
       </div>
     </div>

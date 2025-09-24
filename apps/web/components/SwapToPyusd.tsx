@@ -171,13 +171,13 @@ export function SwapToPyusd() {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto bg-white rounded-lg shadow-lg border border-gray-200">
+    <div className="w-full max-w-lg mx-auto card">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+      <div className="p-6 border-b border-gray-100">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-sm">
             <svg
-              className="w-5 h-5 text-white"
+              className="w-6 h-6 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -186,16 +186,16 @@ export function SwapToPyusd() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
               />
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900">
               Convert to PYUSD
             </h2>
             <p className="text-sm text-gray-600">
-              Swap your Ethereum assets to PYUSD for easy PayPal off-ramping
+              Swap your assets to PYUSD for seamless PayPal integration
             </p>
           </div>
         </div>
@@ -203,71 +203,91 @@ export function SwapToPyusd() {
 
       <div className="p-6 space-y-6">
         {/* Token Selection */}
-        <div className="space-y-2">
-          <label
-            htmlFor="token"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">
             From Token
           </label>
-          <select
-            value={selectedToken}
-            onChange={(e) => setSelectedToken(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Select token to swap</option>
-            {Object.values(tokens).map((token) => (
-              <option key={token.address} value={token.address}>
-                {token.symbol} - {token.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={selectedToken}
+              onChange={(e) => setSelectedToken(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 appearance-none cursor-pointer"
+            >
+              <option value="">Select token to swap</option>
+              {Object.values(tokens).map((token) => (
+                <option key={token.address} value={token.address}>
+                  {token.symbol} - {token.name}
+                </option>
+              ))}
+            </select>
+            <svg
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
         </div>
 
         {/* Amount Input */}
-        <div className="space-y-2">
-          <label
-            htmlFor="amount"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">
             Amount
           </label>
-          <input
-            id="amount"
-            type="number"
-            step="0.000001"
-            placeholder="0.0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+          <div className="relative">
+            <input
+              type="number"
+              step="0.000001"
+              placeholder="0.0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 text-lg font-medium"
+            />
+            {selectedToken && (
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sm font-medium text-gray-500">
+                {
+                  Object.values(tokens).find((t) => t.address === selectedToken)
+                    ?.symbol
+                }
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Slippage */}
-        <div className="space-y-2">
-          <label
-            htmlFor="slippage"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Slippage Tolerance (%)
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">
+            Slippage Tolerance
           </label>
-          <select
-            value={slippage.toString()}
-            onChange={(e) => setSlippage(parseInt(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="1">1%</option>
-            <option value="2">2%</option>
-            <option value="3">3%</option>
-            <option value="5">5%</option>
-          </select>
+          <div className="grid grid-cols-4 gap-2">
+            {[1, 2, 3, 5].map((value) => (
+              <button
+                key={value}
+                onClick={() => setSlippage(value)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  slippage === value
+                    ? "bg-orange-100 text-orange-700 border-2 border-orange-200"
+                    : "bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200"
+                }`}
+              >
+                {value}%
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Quote Button */}
         <button
           onClick={getQuote}
           disabled={isQuoting || !selectedToken || !amount}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 focus:ring-2 focus:ring-gray-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
         >
           {isQuoting ? (
             <span className="flex items-center justify-center">
@@ -299,41 +319,73 @@ export function SwapToPyusd() {
 
         {/* Quote Display */}
         {quote && (
-          <div className="bg-gray-50 p-4 rounded-lg space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">You pay:</span>
-              <span className="font-medium">
-                {amount}{" "}
-                {
-                  Object.values(tokens).find((t) => t.address === selectedToken)
-                    ?.symbol
-                }
-              </span>
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-5 rounded-xl space-y-4">
+            <div className="flex items-center justify-center mb-2">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
             </div>
-            <div className="flex justify-center">
-              <svg
-                className="w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                />
-              </svg>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">You receive:</span>
-              <span className="font-medium text-green-600">
-                {formatAmount(quote.dstAmount, 6)} PYUSD
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <span>Estimated gas:</span>
-              <span>{parseInt(quote.estimatedGas).toLocaleString()}</span>
+
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2">
+                <span className="text-sm font-medium text-gray-600">
+                  You pay:
+                </span>
+                <span className="font-bold text-gray-900">
+                  {amount}{" "}
+                  {
+                    Object.values(tokens).find(
+                      (t) => t.address === selectedToken
+                    )?.symbol
+                  }
+                </span>
+              </div>
+
+              <div className="flex justify-center py-2">
+                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center py-2">
+                <span className="text-sm font-medium text-gray-600">
+                  You receive:
+                </span>
+                <span className="font-bold text-green-600 text-lg">
+                  {formatAmount(quote.dstAmount, 6)} PYUSD
+                </span>
+              </div>
+
+              <div className="border-t border-green-200 pt-3 flex justify-between items-center">
+                <span className="text-xs text-gray-500">Estimated gas:</span>
+                <span className="text-xs text-gray-700 font-medium">
+                  {parseInt(quote.estimatedGas).toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -343,12 +395,12 @@ export function SwapToPyusd() {
           <button
             onClick={executeSwap}
             disabled={isLoading}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-4 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 focus:ring-2 focus:ring-orange-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-sm"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
                 <svg
-                  className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -376,22 +428,27 @@ export function SwapToPyusd() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <svg
-                className="w-5 h-5 text-red-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div className="ml-3">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="flex items-start space-x-3">
+              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-4 h-4 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-red-900 mb-1">
+                  Swap Failed
+                </p>
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             </div>
@@ -400,34 +457,50 @@ export function SwapToPyusd() {
 
         {/* Success Alert */}
         {success && (
-          <div className="bg-green-50 border border-green-200 rounded-md p-4">
-            <div className="flex">
-              <svg
-                className="w-5 h-5 text-green-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              <div className="ml-3">
-                <p className="text-sm text-green-800">{success}</p>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+            <div className="flex items-start space-x-3">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-4 h-4 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-900 mb-1">
+                  Swap Successful!
+                </p>
+                <p className="text-sm text-green-800 mb-2">{success}</p>
                 {txHash && (
-                  <div className="mt-2">
-                    <a
-                      href={`https://etherscan.io/tx/${txHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline text-sm"
+                  <a
+                    href={`https://etherscan.io/tx/${txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-1 text-sm text-orange-600 hover:text-orange-700 font-medium"
+                  >
+                    <span>View on Etherscan</span>
+                    <svg
+                      className="w-3 h-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      View on Etherscan →
-                    </a>
-                  </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      />
+                    </svg>
+                  </a>
                 )}
               </div>
             </div>
@@ -435,13 +508,71 @@ export function SwapToPyusd() {
         )}
 
         {/* Info */}
-        <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded">
-          <p className="font-medium mb-2">Why PYUSD?</p>
-          <ul className="space-y-1">
-            <li>• Stable value (USD-pegged)</li>
-            <li>• Easy PayPal off-ramping</li>
-            <li>• Lower volatility risk</li>
-          </ul>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4 rounded-xl">
+          <div className="flex items-start space-x-3">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg
+                className="w-4 h-4 text-blue-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-900 mb-2">
+                Why PYUSD?
+              </p>
+              <ul className="text-xs text-blue-800 space-y-1">
+                <li className="flex items-center space-x-2">
+                  <svg
+                    className="w-3 h-3 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>Stable value (USD-pegged stablecoin)</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <svg
+                    className="w-3 h-3 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>Seamless PayPal integration for easy off-ramping</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <svg
+                    className="w-3 h-3 text-blue-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <span>Reduced volatility and price stability</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>

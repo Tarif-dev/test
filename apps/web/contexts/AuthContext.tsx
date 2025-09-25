@@ -1,7 +1,14 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { apiService, User } from '../lib/api';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { apiService } from "../lib/api";
+import { User } from "../types";
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(userProfile);
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error("Error checking auth status:", error);
       // If there's an error (like expired token), clear the auth state
       apiService.logout();
       setUser(null);
@@ -48,7 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { user: userData } = await apiService.handleGoogleCallback(code);
       setUser(userData);
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       throw error;
     } finally {
       setLoading(false);
@@ -67,20 +74,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     login,
     logout,
-    isAuthenticated
+    isAuthenticated,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

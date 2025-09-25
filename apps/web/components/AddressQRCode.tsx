@@ -120,16 +120,57 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
   };
 
   const shareQRCode = async () => {
-    const address = getCurrentAddress();
-    const network = getCurrentNetworkLabel();
-
-    const shareData = {
-      title: "Pokket Wallet Address",
-      text: `Send crypto to my ${network} wallet:\n${address}`,
-      url: window.location.origin,
-    };
-
     try {
+      const address = getCurrentAddress();
+      const network = getCurrentNetworkLabel();
+
+      // Create PNG image for sharing
+      const svgElement = qrRef.current?.querySelector("svg");
+      if (!svgElement) {
+        throw new Error("QR code not found");
+      }
+
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) throw new Error("Canvas context not available");
+
+      canvas.width = 400;
+      canvas.height = 400;
+
+      // White background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = () => {
+          // Draw QR code centered
+          const qrSize = 300;
+          const x = (canvas.width - qrSize) / 2;
+          const y = (canvas.width - qrSize) / 2;
+          ctx.drawImage(img, x, y, qrSize, qrSize);
+          resolve(void 0);
+        };
+        img.onerror = reject;
+        img.src = "data:image/svg+xml;base64," + btoa(svgData);
+      });
+
+      // Convert to blob
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => resolve(blob!), "image/png");
+      });
+
+      const shareData = {
+        title: "My Crypto Wallet Address",
+        text: `Send crypto to my ${network} wallet address`,
+        files: [
+          new File([blob], `wallet-qr-${network}.png`, { type: "image/png" }),
+        ],
+      };
+
+      // Try native sharing with image
       if (
         navigator.share &&
         navigator.canShare &&
@@ -137,20 +178,29 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
       ) {
         await navigator.share(shareData);
       } else {
-        // Fallback: copy to clipboard
-        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by Pokket: ${window.location.origin}`;
+        // Fallback: download image and copy text
+        const link = document.createElement("a");
+        link.download = `wallet-qr-${network}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+
+        // Also copy text to clipboard
+        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by Pokket`;
         await navigator.clipboard.writeText(textToCopy);
-        alert("Address details copied to clipboard!");
+        alert("QR code downloaded and wallet details copied to clipboard!");
       }
     } catch (error) {
-      console.error("Error sharing:", error);
-      // Fallback: copy to clipboard
+      console.error("Error sharing QR code:", error);
+
+      // Ultimate fallback: copy address to clipboard
       try {
-        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by Pokket: ${window.location.origin}`;
+        const address = getCurrentAddress();
+        const network = getCurrentNetworkLabel();
+        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by Pokket`;
         await navigator.clipboard.writeText(textToCopy);
-        alert("Address details copied to clipboard!");
+        alert("Wallet details copied to clipboard!");
       } catch (clipboardError) {
-        alert("Unable to share or copy address");
+        alert("Unable to share. Please copy address manually.");
       }
     }
   };

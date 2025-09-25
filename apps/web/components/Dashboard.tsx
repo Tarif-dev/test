@@ -213,14 +213,6 @@ export function Dashboard() {
               {/* QR Code Section - Right Side */}
               <div className="order-1 lg:order-2">
                 <div className="sticky top-32">
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      Receive Payments
-                    </h2>
-                    <p className="text-gray-600">
-                      Share your QR code to receive payments
-                    </p>
-                  </div>
                   <AddressQRCode className="shadow-2xl shadow-black/10" />
                 </div>
               </div>

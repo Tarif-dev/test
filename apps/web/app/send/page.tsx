@@ -3,9 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
-import { SwapToPyusd } from "../../components/SwapToPyusd";
+import { QRUploadSend } from "../../components/QRUploadSend";
 
-export default function SwapPage() {
+export default function SendPage() {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
@@ -30,6 +30,7 @@ export default function SwapPage() {
                   </span>
                 </Link>
               </div>
+
               {/* Navigation */}
               <div className="flex items-center space-x-4">
                 <Link
@@ -38,16 +39,17 @@ export default function SwapPage() {
                 >
                   Dashboard
                 </Link>
+                <span className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl">
+                  Send
+                </span>
                 <Link
-                  href="/send"
+                  href="/swap"
                   className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-200"
                 >
-                  Send
-                </Link>
-                <span className="px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 rounded-xl">
                   Swap
-                </span>
-              </div>{" "}
+                </Link>
+              </div>
+
               {/* User Profile */}
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3 px-3 py-2 bg-gray-50/50 rounded-xl">
@@ -77,7 +79,7 @@ export default function SwapPage() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                     />
                   </svg>
                 </button>
@@ -93,10 +95,10 @@ export default function SwapPage() {
           {/* Hero Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-6">
-              Swap to PYUSD
+              Send Crypto
             </h1>
 
-            {/* Volatility Warning */}
+            {/* Safety Notice */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 max-w-2xl mx-auto">
               <div className="flex items-start space-x-3">
                 <svg
@@ -112,20 +114,20 @@ export default function SwapPage() {
                 </svg>
                 <div className="text-left">
                   <p className="text-sm font-medium text-blue-900">
-                    Smart choice for stability
+                    Send securely with QR codes
                   </p>
                   <p className="text-sm text-blue-800 mt-1">
-                    Convert volatile crypto to stable PayPal USD (PYUSD) to
-                    protect your funds from market fluctuations.
+                    Always verify recipient addresses before sending.
+                    Transactions are irreversible.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Swap Interface */}
+          {/* Send Interface */}
           <div className="max-w-2xl mx-auto">
-            <SwapToPyusd />
+            <QRUploadSend />
           </div>
         </div>
       </main>

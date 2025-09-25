@@ -13,8 +13,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "TipLink - Ethereum Wallet & TipLinks",
-  description: "Create and manage Ethereum wallets and send crypto via shareable links",
+  title: "Pokket - Ethereum Wallet & Crypto Payments",
+  description:
+    "Create and manage Ethereum wallets and send crypto via shareable links",
 };
 
 export default function RootLayout({
@@ -25,9 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

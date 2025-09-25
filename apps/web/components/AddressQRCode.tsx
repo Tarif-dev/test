@@ -107,7 +107,7 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
 
         // Download
         const link = document.createElement("a");
-        link.download = `tiplink-qr-${selectedNetwork}-${getCurrentAddress().slice(0, 6)}.png`;
+        link.download = `pokket-qr-${selectedNetwork}-${getCurrentAddress().slice(0, 6)}.png`;
         link.href = canvas.toDataURL();
         link.click();
       };
@@ -124,7 +124,7 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
     const network = getCurrentNetworkLabel();
 
     const shareData = {
-      title: "TipLink Wallet Address",
+      title: "Pokket Wallet Address",
       text: `Send crypto to my ${network} wallet:\n${address}`,
       url: window.location.origin,
     };
@@ -138,7 +138,7 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
         await navigator.share(shareData);
       } else {
         // Fallback: copy to clipboard
-        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by TipLink: ${window.location.origin}`;
+        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by Pokket: ${window.location.origin}`;
         await navigator.clipboard.writeText(textToCopy);
         alert("Address details copied to clipboard!");
       }
@@ -146,7 +146,7 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
       console.error("Error sharing:", error);
       // Fallback: copy to clipboard
       try {
-        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by TipLink: ${window.location.origin}`;
+        const textToCopy = `Send crypto to my ${network} wallet:\n${address}\n\nPowered by Pokket: ${window.location.origin}`;
         await navigator.clipboard.writeText(textToCopy);
         alert("Address details copied to clipboard!");
       } catch (clipboardError) {

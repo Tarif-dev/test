@@ -48,7 +48,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <div className="w-6 h-6 bg-white rounded-md transform rotate-45"></div>
             </div>
-            <h1 className="text-2xl font-bold text-white">TipLink</h1>
+            <h1 className="text-2xl font-bold text-white">Pokket</h1>
           </div>
           <div className="hidden md:flex items-center space-x-8">
             <a
@@ -249,7 +249,7 @@ export default function Home() {
                 <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                   <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
                 </div>
-                <span className="text-xl font-bold text-white">TipLink</span>
+                <span className="text-xl font-bold text-white">Pokket</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Revolutionizing Web3 finance with secure, scalable, and
@@ -354,7 +354,7 @@ export default function Home() {
 
           <div className="border-t border-white/10 mt-12 pt-8 text-center">
             <p className="text-gray-400 text-sm">
-              © 2025 TipLink. All rights reserved.
+              © 2025 Pokket. All rights reserved.
             </p>
           </div>
         </div>

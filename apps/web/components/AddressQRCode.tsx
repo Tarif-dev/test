@@ -3,9 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import QRCode from "react-qr-code";
 import { apiService } from "../lib/api";
-import { AddressInfo } from "../types";
+import { AddressInfo, User } from "../types";
+import { useVerificationStatus } from "../contexts/VerificationContext";
+import { VerifiedBadge } from "./VerifiedBadge";
 
-type NetworkType = "ethereum" | "solana";
+type NetworkType = "pokket" | "ethereum" | "solana";
 
 interface AddressQRCodeProps {
   className?: string;
@@ -13,11 +15,16 @@ interface AddressQRCodeProps {
 
 export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
   const [addressInfo, setAddressInfo] = useState<AddressInfo | null>(null);
-  const [selectedNetwork, setSelectedNetwork] =
-    useState<NetworkType>("ethereum");
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkType>("pokket");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const qrRef = useRef<HTMLDivElement>(null);
+
+  // Get verification status for the current user
+  const { verificationStatus } = useVerificationStatus(
+    addressInfo?.ethereum.address || ""
+  );
 
   useEffect(() => {
     fetchAddresses();
@@ -27,8 +34,12 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
     try {
       setLoading(true);
       setError(null);
-      const addresses = await apiService.getUserAddresses();
+      const [addresses, userProfile] = await Promise.all([
+        apiService.getUserAddresses(),
+        apiService.getUserProfile(),
+      ]);
       setAddressInfo(addresses);
+      setUser(userProfile);
     } catch (err) {
       console.error("Error fetching addresses:", err);
       setError("Failed to load addresses");
@@ -40,7 +51,9 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
   const getCurrentAddress = () => {
     if (!addressInfo) return "";
 
-    if (selectedNetwork === "ethereum") {
+    if (selectedNetwork === "pokket") {
+      return "Pokket Profile";
+    } else if (selectedNetwork === "ethereum") {
       return addressInfo.ethereum.address;
     } else {
       return addressInfo.solana?.address || "";
@@ -50,7 +63,9 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
   const getCurrentNetworkLabel = () => {
     if (!addressInfo) return "";
 
-    if (selectedNetwork === "ethereum") {
+    if (selectedNetwork === "pokket") {
+      return "Pokket Profile";
+    } else if (selectedNetwork === "ethereum") {
       return `${addressInfo.ethereum.network.toUpperCase()} Network`;
     } else {
       return `${addressInfo.solana?.network.toUpperCase() || "DEVNET"} Network`;
@@ -58,6 +73,20 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
   };
 
   const getQRValue = () => {
+    if (!addressInfo) return "";
+
+    // If Pokket tab is selected, return JSON object
+    if (selectedNetwork === "pokket" && user && addressInfo) {
+      const pokketData = {
+        name: user.name || "Anonymous User",
+        ethAddress: addressInfo.ethereum.address,
+        solAddress: addressInfo.solana?.address || null,
+        verified: verificationStatus.isVerified,
+        verificationTimestamp: verificationStatus.verificationTimestamp || null,
+      };
+      return JSON.stringify(pokketData);
+    }
+
     const address = getCurrentAddress();
     if (!address) return "";
 
@@ -210,8 +239,24 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
         </p>
       </div>
 
-      {/* Network Selector */}
+      {/* Network/Mode Selector */}
       <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+        {/* Pokket Tab */}
+        <button
+          onClick={() => setSelectedNetwork("pokket")}
+          className={`flex-1 flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+            selectedNetwork === "pokket"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-600 hover:text-gray-900"
+          }`}
+        >
+          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          Pokket
+        </button>
+
+        {/* Ethereum Tab */}
         <button
           onClick={() => setSelectedNetwork("ethereum")}
           className={`flex-1 flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -225,6 +270,8 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
           </svg>
           Ethereum
         </button>
+
+        {/* Solana Tab */}
         {addressInfo.solana && (
           <button
             onClick={() => setSelectedNetwork("solana")}
@@ -239,7 +286,7 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
               fill="currentColor"
               viewBox="0 0 24 24"
             >
-              <path d="M12.066 7.726a4.5 4.5 0 0 1 6.168 6.166l-6.168-6.166Z" />
+              <path d="M12.066 7.726a4.5 4.4 0 0 1 6.168 6.166l-6.168-6.166Z" />
               <path
                 fillRule="evenodd"
                 d="M18.068 9.26c1.287.906 1.287 2.474 0 3.38l-8.568 6.034c-1.287.906-2.95.162-2.95-1.32V8.646c0-1.482 1.663-2.226 2.95-1.32L18.068 9.26Z"
@@ -308,53 +355,100 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
       </div>
 
       {/* Network Info */}
-      <div className="bg-gray-50 rounded-xl p-4 mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-600">Network:</span>
-          <span className="text-sm font-semibold text-gray-900">
-            {getCurrentNetworkLabel()}
-          </span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-600">Address:</span>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-mono text-gray-900">
-              {getCurrentAddress().slice(0, 6)}...
-              {getCurrentAddress().slice(-4)}
-            </span>
-            <button
-              onClick={() =>
-                navigator.clipboard
-                  .writeText(getCurrentAddress())
-                  .then(() => alert("Address copied to clipboard!"))
-              }
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
-            >
+      {selectedNetwork === "pokket" ? (
+        <div className="bg-orange-50 rounded-xl p-4 mb-4 border border-orange-200">
+          <div className="mb-3">
+            <div className="flex items-center space-x-2 mb-2">
               <svg
-                className="w-4 h-4 text-gray-500"
-                fill="none"
-                stroke="currentColor"
+                className="w-5 h-5 text-orange-600"
+                fill="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
               </svg>
-            </button>
+              <span className="text-sm font-semibold text-orange-900">
+                Pokket Profile QR
+              </span>
+              {verificationStatus.isVerified && (
+                <VerifiedBadge
+                  verificationStatus={verificationStatus}
+                  size="sm"
+                  showTooltip={true}
+                />
+              )}
+            </div>
+            <p className="text-xs text-orange-700 mb-3">
+              This QR contains your complete Pokket profile for easy sharing
+              {verificationStatus.isVerified && (
+                <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                  Verified Identity
+                </span>
+              )}
+            </p>
+            <div className="font-mono text-xs bg-white p-3 rounded border border-orange-200">
+              {`{
+  "name": "${user?.name || "Anonymous User"}",
+  "ethAddress": "${addressInfo?.ethereum.address || "..."}",
+  "solAddress": "${addressInfo?.solana?.address || "null"}",
+  "verified": ${verificationStatus.isVerified},
+  "verificationTimestamp": ${verificationStatus.verificationTimestamp || "null"}
+}`}
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-gray-50 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600">Network:</span>
+            <span className="text-sm font-semibold text-gray-900">
+              {getCurrentNetworkLabel()}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-600">Address:</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-mono text-gray-900">
+                {getCurrentAddress().slice(0, 6)}...
+                {getCurrentAddress().slice(-4)}
+              </span>
+              <button
+                onClick={() =>
+                  navigator.clipboard
+                    .writeText(getCurrentAddress())
+                    .then(() => alert("Address copied to clipboard!"))
+                }
+                className="p-1 hover:bg-gray-200 rounded transition-colors"
+              >
+                <svg
+                  className="w-4 h-4 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Copy Address Button */}
+      {/* Copy Button */}
       <button
-        onClick={() =>
+        onClick={() => {
+          const valueToCopy =
+            selectedNetwork === "pokket" ? getQRValue() : getCurrentAddress();
+          const label =
+            selectedNetwork === "pokket" ? "Pokket profile data" : "Address";
           navigator.clipboard
-            .writeText(getCurrentAddress())
-            .then(() => alert("Address copied to clipboard!"))
-        }
+            .writeText(valueToCopy)
+            .then(() => alert(`${label} copied to clipboard!`));
+        }}
         className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-medium"
       >
         <svg
@@ -370,7 +464,11 @@ export default function AddressQRCode({ className = "" }: AddressQRCodeProps) {
             d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
           />
         </svg>
-        <span>Copy Full Address</span>
+        <span>
+          {selectedNetwork === "pokket"
+            ? "Copy Profile Data"
+            : "Copy Full Address"}
+        </span>
       </button>
 
       {/* Enhanced Info Section */}

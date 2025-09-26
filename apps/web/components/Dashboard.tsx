@@ -3,13 +3,17 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
+import { useVerification } from "../contexts/VerificationContext";
 import { apiService } from "../lib/api";
 import { WalletInfo } from "../types";
 import { TokenPortfolio } from "./TokenPortfolio";
 import AddressQRCode from "./AddressQRCode";
+import { VerificationButton } from "./VerificationButton";
+import { NavbarVerifiedBadge } from "./VerifiedBadge";
 
 export function Dashboard() {
   const { user, logout } = useAuth();
+  const { verificationStatus } = useVerification();
   const [wallet, setWallet] = useState<WalletInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
@@ -136,10 +140,20 @@ export function Dashboard() {
                       alt={user.name || "User avatar"}
                     />
                   )}
-                  <span className="text-sm font-medium text-gray-700">
-                    {user?.name?.split(" ")[0] || "User"}
-                  </span>
+                  <div className="flex items-center space-x-1">
+                    <span className="text-sm font-medium text-gray-700">
+                      {user?.name?.split(" ")[0] || "User"}
+                    </span>
+                    <NavbarVerifiedBadge
+                      verificationStatus={verificationStatus}
+                    />
+                  </div>
                 </div>
+
+                {/* Verification Button - shows when not verified */}
+                {!verificationStatus.isVerified && wallet && (
+                  <VerificationButton userAddress={wallet.ethereum.address} />
+                )}
 
                 <button
                   onClick={handleLogout}

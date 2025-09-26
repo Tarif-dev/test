@@ -12,7 +12,7 @@
     "axios": "^1.12.2",
     "crypto-js": "^4.2.0",
     "db": "*",
-    "ethers": "^6.13.4",
+    "ethers": "^6.15.0",
     "googleapis": "^144.0.0",
     "hono": "^4.6.16",
     "jsonwebtoken": "^9.0.2",

@@ -4,6 +4,7 @@ import { AuthService } from "./services/auth";
 import { TokenService } from "./services/tokens";
 import { dbService } from "./services/database";
 import { swapApp } from "./routes/swap";
+import { verificationRoutes } from "./routes/verification";
 
 const app = new Hono();
 const authService = new AuthService();
@@ -368,6 +369,9 @@ app.get("/admin/users-with-solana", async (c) => {
 
 // Mount swap routes
 app.route("/swap", swapApp);
+
+// Mount verification routes
+app.route("/verification", verificationRoutes);
 
 // Error handling
 app.onError((err, c) => {

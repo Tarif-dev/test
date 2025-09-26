@@ -1,3 +1,5 @@
+import { log } from "console";
+
 // Quick test script to check API connection
 const API_BASE_URL = "http://localhost:3001";
 
@@ -14,6 +16,7 @@ async function testVerificationAPI() {
       console.log("✅ Config API working!");
       console.log("   Contract Address:", config.contractAddress);
       console.log("   Network:", config.network);
+      console.log("hi");
     } else {
       console.log("❌ Config API failed:", configResponse.status);
     }

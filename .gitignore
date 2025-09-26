@@ -36,3 +36,18 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Foundry
+cache/
+lib/
+
+# Contracts specific
+apps/contracts/lib/
+apps/contracts/cache/
+apps/contracts/out/
+apps/contracts/broadcast/
+
+# Large dependencies and generated files  
+**/*.log
+**/*.tgz
+**/*.tar.gz

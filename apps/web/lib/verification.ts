@@ -3,7 +3,7 @@ import { SelfAppBuilder } from "@selfxyz/qrcode";
 // Configuration for Pokket Identity Verification
 const VERIFICATION_CONFIG = {
   // Contract will be deployed on Celo testnet
-  endpoint: process.env.NEXT_PUBLIC_VERIFICATION_CONTRACT || "",
+  endpoint: process.env.NEXT_PUBLIC_VERIFICATION_CONTRACT_ADDRESS || "",
   endpointType: "staging_celo" as const, // Using testnet
   userIdType: "hex" as const,
   version: 2 as const,
@@ -75,7 +75,11 @@ export class SelfVerificationService {
     userAddress: string
   ): Promise<VerificationStatus> {
     try {
-      const response = await fetch(`/api/verification/status/${userAddress}`);
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      const response = await fetch(
+        `${API_BASE_URL}/verification/status/${userAddress}`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);

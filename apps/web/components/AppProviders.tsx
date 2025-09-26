@@ -12,7 +12,7 @@ function VerificationWrapper({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
   // Pass user's Ethereum address to VerificationProvider if available
-  const userAddress = user?.address || undefined;
+  const userAddress = user?.publicAddress || undefined;
 
   return (
     <VerificationProvider userAddress={userAddress}>

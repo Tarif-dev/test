@@ -60,13 +60,20 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
     }).format(value);
   };
 
-  const formatBalance = (balance: string, decimals: number = 18) => {
-    const num = parseFloat(balance);
-    if (num === 0) return "0";
+  const formatBalance = (balanceFormatted: string) => {
+    const num = parseFloat(balanceFormatted);
+    if (isNaN(num) || num === 0) return "0";
     if (num < 0.000001) return "< 0.000001";
+
+    // For very small numbers, show more precision
+    if (num < 0.01) {
+      return num.toFixed(6).replace(/\.?0+$/, "");
+    }
+
+    // For larger numbers, use locale formatting with appropriate precision
     return num.toLocaleString(undefined, {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
+      maximumFractionDigits: num < 1 ? 6 : 2,
     });
   };
 
@@ -257,15 +264,39 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
                         className="w-10 h-10 rounded-full"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
+                          // Show fallback after image fails to load
+                          const fallback = (e.target as HTMLImageElement)
+                            .nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
-                    ) : (
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                    ) : null}
+                    {/* Fallback icon - always rendered but hidden unless needed */}
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        token.logoURI ? "hidden" : "flex"
+                      } ${
+                        token.symbol === "ETH"
+                          ? "bg-gradient-to-br from-gray-400 to-gray-600"
+                          : "bg-gradient-to-br from-blue-400 to-blue-600"
+                      }`}
+                      style={token.logoURI ? { display: "none" } : {}}
+                    >
+                      {token.symbol === "ETH" ? (
+                        // Special ETH diamond logo
+                        <svg
+                          className="w-6 h-6 text-white"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.372 4.35h.003zM12.056 0L4.69 12.223l7.365 4.354 7.365-4.35L12.056 0z" />
+                        </svg>
+                      ) : (
                         <span className="text-white font-bold text-sm">
                           {token.symbol.slice(0, 2)}
                         </span>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Token Info */}
@@ -312,8 +343,7 @@ export function TokenPortfolio({ className = "" }: TokenPortfolioProps) {
                 {/* Token Balance & Value */}
                 <div className="text-right">
                   <p className="font-semibold text-gray-900">
-                    {formatBalance(token.balance, token.decimals)}{" "}
-                    {token.symbol}
+                    {formatBalance(token.balanceFormatted)} {token.symbol}
                   </p>
                   {token.priceUSD && token.valueUSD && (
                     <div className="text-sm text-gray-600 mt-1">

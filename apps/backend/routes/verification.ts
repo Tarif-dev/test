@@ -1,9 +1,14 @@
+// Load environment variables first
+import "dotenv/config";
+
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { Contract, JsonRpcProvider } from "ethers";
 
-// Celo Sepolia testnet configuration
-const CELO_SEPOLIA_RPC = "https://forno.celo-sepolia.celo-testnet.org";
+// Celo Alfajores testnet configuration
+const CELO_ALFAJORES_RPC =
+  process.env.CELO_ALFAJORES_RPC_URL ||
+  "https://alfajores-forno.celo-testnet.org";
 const VERIFICATION_CONTRACT_ADDRESS =
   process.env.VERIFICATION_CONTRACT_ADDRESS || "";
 
@@ -33,8 +38,8 @@ app.use(
   })
 );
 
-// Create provider for Celo Sepolia
-const provider = new JsonRpcProvider(CELO_SEPOLIA_RPC);
+// Create provider for Celo Alfajores
+const provider = new JsonRpcProvider(CELO_ALFAJORES_RPC);
 
 // Initialize contract only if address is configured
 function getVerificationContract() {
@@ -197,7 +202,7 @@ app.get("/stats", async (c) => {
       contractConfig: currentConfig,
       contractOwner,
       contractAddress: VERIFICATION_CONTRACT_ADDRESS,
-      network: "celo-sepolia",
+      network: "celo-alfajores",
     });
   } catch (error) {
     console.error("Error fetching verification stats:", error);
@@ -212,8 +217,8 @@ app.get("/stats", async (c) => {
 app.get("/config", async (c) => {
   return c.json({
     contractAddress: VERIFICATION_CONTRACT_ADDRESS,
-    network: "celo-sepolia",
-    rpcUrl: CELO_SEPOLIA_RPC,
+    network: "celo-alfajores",
+    rpcUrl: CELO_ALFAJORES_RPC,
     enabled: !!VERIFICATION_CONTRACT_ADDRESS,
     supportedDocuments: ["aadhar_card", "passport"],
     minimumAge: 18,

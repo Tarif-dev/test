@@ -51,11 +51,16 @@ export function VerificationProvider({
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/verification/status/${userAddress}`, {
-        headers: {
-          "Cache-Control": "no-cache",
-        },
-      });
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      const response = await fetch(
+        `${API_BASE_URL}/verification/status/${userAddress}`,
+        {
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        }
+      );
 
       if (response.ok) {
         const status: VerificationStatus = await response.json();
@@ -129,7 +134,11 @@ export function useVerificationStatus(address: string): {
       setError(null);
 
       try {
-        const response = await fetch(`/api/verification/status/${address}`);
+        const API_BASE_URL =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const response = await fetch(
+          `${API_BASE_URL}/verification/status/${address}`
+        );
 
         if (response.ok) {
           const status: VerificationStatus = await response.json();

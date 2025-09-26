@@ -1,94 +1,16 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { useAuth } from "../../contexts/AuthContext";
 import { SwapToPyusd } from "../../components/SwapToPyusd";
+import ResponsiveNavbar from "../../components/ResponsiveNavbar";
 
 export default function SwapPage() {
-  const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-orange-50/20">
-      {/* Floating Header */}
-      <header className="fixed top-4 left-4 right-4 z-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white/90 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-lg shadow-black/5">
-            <div className="px-6 py-4 flex justify-between items-center">
-              {/* Minimal Logo */}
-              <div className="flex items-center space-x-3">
-                <Link href="/" className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                    <div className="w-4 h-4 bg-white rounded-sm transform rotate-45"></div>
-                  </div>
-                  <span className="text-lg font-bold text-gray-900">
-                    Pokket
-                  </span>
-                </Link>
-              </div>
-              {/* Navigation */}
-              <div className="flex items-center space-x-4">
-                <Link
-                  href="/"
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-200"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/send"
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-200"
-                >
-                  Send
-                </Link>
-                <span className="px-4 py-2 text-sm font-medium text-orange-600 bg-orange-50 rounded-xl">
-                  Swap
-                </span>
-              </div>{" "}
-              {/* User Profile */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3 px-3 py-2 bg-gray-50/50 rounded-xl">
-                  {user?.avatar && (
-                    <img
-                      className="w-7 h-7 rounded-full"
-                      src={user.avatar}
-                      alt={user.name || "User avatar"}
-                    />
-                  )}
-                  <span className="text-sm font-medium text-gray-700">
-                    {user?.name?.split(" ")[0] || "User"}
-                  </span>
-                </div>
-
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ResponsiveNavbar />
 
       {/* Main Content */}
-      <main className="pt-24 pb-8">
+      <main className="pt-24 pb-20 md:pb-8 md:pt-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <div className="text-center mb-12">
@@ -111,21 +33,80 @@ export default function SwapPage() {
                   />
                 </svg>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-blue-900">
-                    Smart choice for stability
-                  </p>
-                  <p className="text-sm text-blue-800 mt-1">
-                    Convert volatile crypto to stable PayPal USD (PYUSD) to
-                    protect your funds from market fluctuations.
+                  <h3 className="text-sm font-semibold text-blue-900 mb-1">
+                    Important Notice
+                  </h3>
+                  <p className="text-sm text-blue-800 leading-relaxed">
+                    PYUSD is a stablecoin pegged to the US Dollar. While stable,
+                    all cryptocurrency transactions carry inherent risks. Please
+                    ensure you understand the implications before proceeding.
                   </p>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Swap Interface */}
-          <div className="max-w-2xl mx-auto">
-            <SwapToPyusd />
+            {/* Swap Component */}
+            <div className="max-w-md mx-auto">
+              <SwapToPyusd />
+            </div>
+
+            {/* Additional Info */}
+            <div className="mt-12 max-w-2xl mx-auto text-left">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                About PYUSD
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                    <svg
+                      className="w-6 h-6 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    USD Pegged
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    PYUSD is backed 1:1 with US Dollar reserves, providing
+                    stability for your digital transactions.
+                  </p>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                    <svg
+                      className="w-6 h-6 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Regulated
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Issued by PayPal under regulatory oversight, ensuring
+                    compliance and transparency.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>

@@ -31,7 +31,11 @@ export function VerificationButton({
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/verification/status/${userAddress}`);
+      const API_BASE_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      const response = await fetch(
+        `${API_BASE_URL}/verification/status/${userAddress}`
+      );
       if (response.ok) {
         const status: VerificationStatus = await response.json();
         setVerificationStatus(status);

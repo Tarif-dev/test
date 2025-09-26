@@ -256,3 +256,71 @@ body {
     font-size: 0.9rem;
   }
 }
+
+/* Mobile Navigation & Safe Area Support */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Mobile floating navbar animations */
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth navbar transitions */
+@media (max-width: 768px) {
+  .mobile-navbar-enter {
+    animation: slideInUp 0.3s ease-out;
+  }
+
+  .mobile-topbar-enter {
+    animation: slideInDown 0.3s ease-out;
+  }
+
+  /* Better touch targets for mobile */
+  .mobile-nav-item {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Prevent text selection on navigation items */
+  .mobile-nav-item,
+  .desktop-nav-item {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* Responsive spacing utilities */
+@media (max-width: 640px) {
+  .main-content {
+    padding-top: 5rem; /* Account for mobile header */
+    padding-bottom: 6rem; /* Account for mobile bottom nav */
+  }
+}
+
+@media (min-width: 641px) {
+  .main-content {
+    padding-top: 7rem; /* Account for desktop header */
+    padding-bottom: 2rem;
+  }
+}

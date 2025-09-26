@@ -37,7 +37,7 @@ const POPULAR_TOKENS = [
     name: "USD Coin",
     decimals: 6,
     logoURI:
-      "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86a33E6441e21A97e78b6F4d5bBE7aD7B0e57/logo.png",
+      "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
   },
   {
     address: "0x6c3ea9036406852006290770BEdFcAbA0e23A0e8", // PYUSD on Ethereum Mainnet
@@ -351,6 +351,20 @@ export class TokenService {
       const ethValueUSD = parseFloat(ethBalance.balanceFormatted) * ethPrice;
       totalValueUSD += ethValueUSD;
 
+      // Create ETH token entry to include in the tokens list
+      const ethTokenInfo: TokenInfo = {
+        address: "0x0000000000000000000000000000000000000000", // Use zero address for ETH
+        symbol: "ETH",
+        name: "Ethereum",
+        decimals: 18,
+        balance: ethBalance.balance,
+        balanceFormatted: ethBalance.balanceFormatted,
+        logoURI:
+          "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png", // Using WETH logo which is the same as ETH
+        priceUSD: ethPrice,
+        valueUSD: ethValueUSD,
+      };
+
       // Add token values and update token info
       const tokensWithPrices = tokens.map((token) => {
         const price = prices[token.address.toLowerCase()] || 0;
@@ -364,9 +378,14 @@ export class TokenService {
         };
       });
 
+      // Combine ETH with other tokens and sort by value (highest first)
+      const allTokens = [ethTokenInfo, ...tokensWithPrices].sort(
+        (a, b) => (b.valueUSD || 0) - (a.valueUSD || 0)
+      );
+
       return {
         totalValueUSD,
-        tokens: tokensWithPrices,
+        tokens: allTokens,
         ethBalance: ethBalance.balance,
         ethBalanceFormatted: ethBalance.balanceFormatted,
         ethValueUSD,

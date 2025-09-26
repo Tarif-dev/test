@@ -84,13 +84,8 @@ export default function PaymentModal({
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 0L10.59 8.41L2 7L10.59 15.59L12 24L13.41 15.59L22 17L13.41 8.41L12 0Z" />
-                  </svg>
+                  {/* Pokket Logo - same as navbar */}
+                  <div className="w-5 h-5 bg-white rounded-sm transform rotate-45"></div>
                 </div>
                 <div className="text-left">
                   <div className="font-semibold text-lg">Pokket</div>
@@ -122,18 +117,13 @@ export default function PaymentModal({
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  {/* Base Logo */}
                   <svg
                     className="w-5 h-5"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <circle cx="12" cy="12" r="10" />
-                    <path
-                      d="M8 12h8M12 8v8"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                    />
+                    <path d="M12 0C18.627 0 24 5.373 24 12C24 18.627 18.627 24 12 24C5.373 24 0 18.627 0 12C0 5.373 5.373 0 12 0ZM12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM12 6C15.314 6 18 8.686 18 12C18 15.314 15.314 18 12 18C8.686 18 6 15.314 6 12C6 8.686 8.686 6 12 6Z" />
                   </svg>
                 </div>
                 <div className="text-left">
@@ -166,12 +156,13 @@ export default function PaymentModal({
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  {/* Phantom Logo */}
                   <svg
                     className="w-5 h-5"
                     fill="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" />
+                    <path d="M5.2084 16.4C5.7776 16.4 6.2416 15.936 6.2416 15.3668V8.6332C6.2416 8.064 5.7776 7.6 5.2084 7.6C4.6392 7.6 4.1752 8.064 4.1752 8.6332V15.3668C4.1752 15.936 4.6392 16.4 5.2084 16.4ZM18.7916 16.4C19.3608 16.4 19.8248 15.936 19.8248 15.3668V8.6332C19.8248 8.064 19.3608 7.6 18.7916 7.6C18.2224 7.6 17.7584 8.064 17.7584 8.6332V15.3668C17.7584 15.936 18.2224 16.4 18.7916 16.4ZM12 22C17.5228 22 22 17.5228 22 12C22 6.4772 17.5228 2 12 2C6.4772 2 2 6.4772 2 12C2 17.5228 6.4772 22 12 22ZM12 20C7.5817 20 4 16.4183 4 12C4 7.5817 7.5817 4 12 4C16.4183 4 20 7.5817 20 12C20 16.4183 16.4183 20 12 20ZM8 12C8 13.1046 8.8954 14 10 14C11.1046 14 12 13.1046 12 12C12 10.8954 11.1046 10 10 10C8.8954 10 8 10.8954 8 12ZM12 12C12 13.1046 12.8954 14 14 14C15.1046 14 16 13.1046 16 12C16 10.8954 15.1046 10 14 10C12.8954 10 12 10.8954 12 12Z" />
                   </svg>
                 </div>
                 <div className="text-left">

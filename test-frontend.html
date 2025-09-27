@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Verification Modal</title>
+    <script>
+      async function testVerificationStatus() {
+        const address = "0xFAc58ba0CCd5F5b81F7F4B5F6a28515d1a44b711";
+        try {
+          const response = await fetch(
+            `http://localhost:3001/verification/status/${address}`
+          );
+          const data = await response.json();
+          console.log("Verification Status:", data);
+
+          document.getElementById("result").innerHTML = `
+                    <h3>Verification Status for ${address}</h3>
+                    <p><strong>Is Verified:</strong> ${data.isVerified}</p>
+                    <p><strong>Source:</strong> ${data.source || "blockchain"}</p>
+                    <p><strong>Timestamp:</strong> ${data.verificationTimestamp ? new Date(data.verificationTimestamp * 1000).toLocaleString() : "N/A"}</p>
+                    <p><strong>Raw Response:</strong> <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                `;
+
+          if (data.isVerified) {
+            document.getElementById("result").style.color = "green";
+          } else {
+            document.getElementById("result").style.color = "red";
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          document.getElementById("result").innerHTML =
+            `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      }
+
+      async function clearVerification() {
+        const address = "0xFAc58ba0CCd5F5b81F7F4B5F6a28515d1a44b711";
+        try {
+          const response = await fetch(
+            `http://localhost:3001/verification/test-clear/${address}`,
+            {
+              method: "POST",
+            }
+          );
+          const data = await response.json();
+          console.log("Clear Result:", data);
+          alert("Verification cleared. Check status again.");
+        } catch (error) {
+          console.error("Error clearing:", error);
+          alert("Error clearing verification");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Verification Status Test</h1>
+    <button onclick="testVerificationStatus()">
+      Check Verification Status
+    </button>
+    <button onclick="clearVerification()">Clear Test Verification</button>
+    <div id="result"></div>
+
+    <hr />
+    <h2>Instructions</h2>
+    <ol>
+      <li>Click "Check Verification Status" to see current status</li>
+      <li>Open your web app and try the verification flow</li>
+      <li>The modal should now complete successfully</li>
+      <li>Use "Clear Test Verification" to reset for testing</li>
+    </ol>
+  </body>
+</html>
